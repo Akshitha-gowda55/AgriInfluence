@@ -12,7 +12,10 @@ interface CartStore {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+<<<<<<< HEAD
   fetchCart: () => Promise<void>; // fetch cart from backend
+=======
+>>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
 }
 
 export const useCartStore = create<CartStore>()(
@@ -60,6 +63,7 @@ export const useCartStore = create<CartStore>()(
           0
         );
       },
+<<<<<<< HEAD
       fetchCart: async () => {
         try {
           const token = localStorage.getItem('token');
@@ -99,3 +103,11 @@ export const useCartStore = create<CartStore>()(
     }
   )
 );
+=======
+    }),
+    {
+      name: 'agri-cart',
+    }
+  )
+);
+>>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
