@@ -1,5 +1,6 @@
 {
   "build": {
-    "installCommand": "pnpm install --no-frozen-lockfile"
+    "command": "pnpm build",
+    "outputDirectory": ".next"
   }
 }
