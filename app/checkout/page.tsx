@@ -24,12 +24,18 @@ export default function CheckoutPage() {
 
   if (items.length === 0) return null
 
+  const paypalOptions = {
+    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '',
+    currency: 'USD'
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 py-10">
+
           <Link href="/cart" className="flex items-center text-sm mb-6">
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Cart
@@ -37,24 +43,17 @@ export default function CheckoutPage() {
 
           <div className="grid lg:grid-cols-2 gap-10">
 
-            {/* Payment Section */}
+            {/* Payment */}
             <div>
               <h2 className="text-2xl font-semibold mb-6">Payment</h2>
 
-              <PayPalScriptProvider
-                options={{
-                  'client-id': process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '',
-                  currency: 'USD'
-                }}
-              >
+              <PayPalScriptProvider options={paypalOptions}>
                 <PayPalButtons
 
                   createOrder={async () => {
                     const res = await fetch('/api/checkout', {
                       method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
+                      headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ items })
                     })
 
@@ -62,11 +61,11 @@ export default function CheckoutPage() {
                     return data.orderID
                   }}
 
-                  onApprove={async (data, actions) => {
+                  onApprove={async (_data, actions) => {
                     const details = await actions?.order?.capture()
 
-                    alert('Payment successful!')
                     console.log(details)
+                    alert('Payment successful!')
 
                     clearCart()
                     router.push('/')
@@ -76,28 +75,30 @@ export default function CheckoutPage() {
                     console.error(err)
                     alert('Payment failed')
                   }}
+
                 />
               </PayPalScriptProvider>
+
             </div>
 
             {/* Order Summary */}
             <div className="bg-white border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+
+              <h2 className="text-xl font-semibold mb-4">
+                Order Summary
+              </h2>
 
               <div className="space-y-3">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between">
-                    <span>
-                      {item.name} × {item.quantity}
-                    </span>
-                    <span>
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                    <span>{item.name} × {item.quantity}</span>
+                    <span>${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
 
               <div className="border-t mt-6 pt-6 space-y-2">
+
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
@@ -105,7 +106,9 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span>
+                    {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                  </span>
                 </div>
 
                 <div className="flex justify-between">
@@ -117,9 +120,10 @@ export default function CheckoutPage() {
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
-              </div>
 
+              </div>
             </div>
+
           </div>
         </div>
       </main>
