@@ -1,0 +1,50 @@
+{
+  "name": "AgriInfluence Cart APIs",
+  "version": "1.0",
+  "requests": [
+    {
+      "name": "Add Product to Cart",
+      "url": "http://localhost:5000/api/cart",
+      "method": "POST",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer <YOUR_USER_JWT_TOKEN>"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": {
+          "product": "69aae76ca5a0dfdf5d1eaaa5",
+          "quantity": 2
+        }
+      }
+    },
+    {
+      "name": "Get Cart Items",
+      "url": "http://localhost:5000/api/cart",
+      "method": "GET",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer <YOUR_USER_JWT_TOKEN>"
+        }
+      ]
+    },
+    {
+      "name": "Remove Item from Cart",
+      "url": "http://localhost:5000/api/cart/69aae76ca5a0dfdf5d1eaaa5",
+      "method": "DELETE",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer <YOUR_USER_JWT_TOKEN>"
+        }
+      ]
+    }
+  ]
+}
