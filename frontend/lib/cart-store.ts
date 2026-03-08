@@ -75,7 +75,14 @@ export const useCartStore = create<CartStore>()(
           const token = localStorage.getItem('token')
           if (!token) return
 
-          const res = await fetch('http://localhost:5000/api/cart', {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL
+
+          if (!apiUrl) {
+            console.error('NEXT_PUBLIC_API_URL is missing')
+            return
+          }
+
+          const res = await fetch(`${apiUrl}/api/cart`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
