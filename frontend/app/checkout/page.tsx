@@ -1,17 +1,23 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useCartStore } from '@/lib/cart-store'
-import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js'
+
+declare global {
+  interface Window {
+    Razorpay: any
+  }
+}
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotalPrice, clearCart } = useCartStore()
+  const [isLoading, setIsLoading] = useState(false)
 
   const subtotal = getTotalPrice()
   const shipping = subtotal > 99 ? 0 : 9.99
@@ -19,12 +25,130 @@ export default function CheckoutPage() {
   const total = subtotal + shipping + tax
 
   useEffect(() => {
-    if (items.length === 0) router.push('/cart')
+    if (items.length === 0) {
+      router.push('/cart')
+    }
   }, [items, router])
 
   if (items.length === 0) return null
 
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || ''
+  const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || ''
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (document.getElementById('razorpay-script')) {
+        resolve(true)
+        return
+      }
+
+      const script = document.createElement('script')
+      script.id = 'razorpay-script'
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.async = true
+
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+
+      document.body.appendChild(script)
+    })
+  }
+
+  const handleRazorpayPayment = async () => {
+    try {
+      if (!razorpayKey) {
+        alert('Razorpay Key ID is missing. Add NEXT_PUBLIC_RAZORPAY_KEY_ID in .env.local')
+        return
+      }
+
+      setIsLoading(true)
+
+      const scriptLoaded = await loadRazorpayScript()
+      if (!scriptLoaded) {
+        alert('Razorpay SDK failed to load.')
+        return
+      }
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          total,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success || !data.order) {
+        console.error('Razorpay order creation failed:', data)
+        alert(data.error || 'Failed to create Razorpay order')
+        return
+      }
+
+      const options = {
+        key: razorpayKey,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: 'AgriInfluence',
+        description: 'Order Payment',
+        order_id: data.order.id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await fetch('/api/checkout', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            })
+
+            const verifyData = await verifyRes.json()
+
+            if (!verifyRes.ok || !verifyData.success) {
+              console.error('Payment verification failed:', verifyData)
+              alert(verifyData.error || 'Payment verification failed')
+              return
+            }
+
+            clearCart()
+            router.push(`/success?orderId=${response.razorpay_payment_id}`)
+          } catch (error) {
+            console.error('Verification error:', error)
+            alert('Payment succeeded, but verification failed.')
+          }
+        },
+        prefill: {
+          name: 'Customer',
+          email: 'customer@example.com',
+          contact: '9999999999',
+        },
+        theme: {
+          color: '#16a34a',
+        },
+        modal: {
+          ondismiss: function () {
+            console.log('Razorpay payment cancelled')
+          },
+        },
+      }
+
+      const paymentObject = new window.Razorpay(options)
+
+      paymentObject.on('payment.failed', function (response: any) {
+        console.error('Razorpay payment failed:', response.error)
+        alert(response.error?.description || 'Payment failed')
+      })
+
+      paymentObject.open()
+    } catch (error) {
+      console.error('Razorpay error:', error)
+      alert('Something went wrong while starting payment.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -41,76 +165,18 @@ export default function CheckoutPage() {
             <div>
               <h2 className="mb-6 text-2xl font-semibold">Payment</h2>
 
-              {clientId ? (
-                <PayPalScriptProvider
-                  options={{
-                    clientId,
-                    currency: 'USD',
-                    intent: 'capture',
-                    disableFunding: 'card,credit,paylater',
-                    locale: 'en_US',
-                  }}
+              {razorpayKey ? (
+                <button
+                  onClick={handleRazorpayPayment}
+                  disabled={isLoading}
+                  className="w-full rounded-md bg-green-600 px-6 py-3 text-white font-medium hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <PayPalButtons
-                    fundingSource="paypal"
-                    style={{
-                      layout: 'vertical',
-                      color: 'gold',
-                      shape: 'rect',
-                      label: 'paypal',
-                    }}
-                    createOrder={async () => {
-                      const res = await fetch('/api/checkout', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ items, total }),
-                      })
-
-                      const data = await res.json()
-
-                      if (!res.ok || !data.orderID) {
-                        console.error('Create order failed:', data)
-                        throw new Error('Failed to create PayPal order')
-                      }
-
-                      return data.orderID
-                    }}
-                    onApprove={async (data) => {
-                      const res = await fetch('/api/checkout', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderID: data.orderID }),
-                      })
-
-                      const details = await res.json()
-
-                      if (!res.ok) {
-                        console.error('Capture failed:', details)
-                        throw new Error('Failed to capture PayPal payment')
-                      }
-
-                      clearCart()
-
-                      const orderId =
-                        details?.id ||
-                        details?.purchase_units?.[0]?.payments?.captures?.[0]?.id ||
-                        data.orderID
-
-                      router.push(orderId ? `/success?orderId=${orderId}` : '/success')
-                    }}
-                    onError={(err) => {
-                      console.error('PayPal payment error:', err)
-                      alert(`Payment failed: ${String(err)}`)
-                    }}
-                    onCancel={() => {
-                      console.log('PayPal payment cancelled')
-                    }}
-                  />
-                </PayPalScriptProvider>
+                  {isLoading ? 'Processing...' : `Pay Now $${total.toFixed(2)}`}
+                </button>
               ) : (
                 <p className="text-sm text-red-500">
-                  PayPal Client ID is missing. Add{' '}
-                  <code>NEXT_PUBLIC_PAYPAL_CLIENT_ID</code>.
+                  Razorpay Key ID is missing. Add{' '}
+                  <code>NEXT_PUBLIC_RAZORPAY_KEY_ID</code>.
                 </p>
               )}
             </div>

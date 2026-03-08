@@ -1,31 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
+import Razorpay from 'razorpay'
 
-const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID!
-const PAYPAL_SECRET = process.env.PAYPAL_SECRET!
-const PAYPAL_BASE =
-  process.env.PAYPAL_BASE || 'https://api-m.sandbox.paypal.com'
-
-async function getPayPalAccessToken() {
-  const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64')
-
-  const response = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  })
-
-  const data = await response.json()
-
-  if (!response.ok || !data.access_token) {
-    console.error('PayPal access token error:', data)
-    throw new Error('Failed to generate PayPal access token')
-  }
-
-  return data.access_token as string
-}
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,43 +24,30 @@ export async function POST(req: NextRequest) {
             0
           )
 
-    const accessToken = await getPayPalAccessToken()
-
-    const response = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        intent: 'CAPTURE',
-        purchase_units: [
-          {
-            amount: {
-              currency_code: 'USD',
-              value: calculatedTotal.toFixed(2),
-            },
-            description: 'AgriInfluence Order',
-          },
-        ],
-      }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok || !data.id) {
-      console.error('PayPal create order error:', data)
+    if (!calculatedTotal || calculatedTotal <= 0) {
       return NextResponse.json(
-        { error: 'Failed to create PayPal order', details: data },
-        { status: 500 }
+        { error: 'Invalid order total' },
+        { status: 400 }
       )
     }
 
-    return NextResponse.json({ orderID: data.id })
+    const order = await razorpay.orders.create({
+      amount: Math.round(calculatedTotal * 100), // convert to paise
+      currency: 'INR',
+      receipt: `receipt_${Date.now()}`,
+      notes: {
+        source: 'AgriInfluence',
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      order,
+    })
   } catch (error) {
-    console.error('PayPal checkout failed:', error)
+    console.error('Razorpay order creation failed:', error)
     return NextResponse.json(
-      { error: 'PayPal checkout failed' },
+      { error: 'Razorpay order creation failed' },
       { status: 500 }
     )
   }
@@ -88,40 +55,49 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { orderID } = await req.json()
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = await req.json()
 
-    if (!orderID) {
-      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
-    }
-
-    const accessToken = await getPayPalAccessToken()
-
-    const response = await fetch(
-      `${PAYPAL_BASE}/v2/checkout/orders/${orderID}/capture`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error('PayPal capture error:', data)
+    if (
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
       return NextResponse.json(
-        { error: 'Failed to capture PayPal order', details: data },
-        { status: 500 }
+        { error: 'Missing payment verification fields' },
+        { status: 400 }
       )
     }
 
-    return NextResponse.json(data)
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`
+
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+      .update(body.toString())
+      .digest('hex')
+
+    const isValidSignature = expectedSignature === razorpay_signature
+
+    if (!isValidSignature) {
+      return NextResponse.json(
+        { error: 'Invalid payment signature', success: false },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Payment verified successfully',
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+    })
   } catch (error) {
-    console.error('PayPal capture failed:', error)
+    console.error('Razorpay verification failed:', error)
     return NextResponse.json(
-      { error: 'PayPal capture failed' },
+      { error: 'Razorpay verification failed', success: false },
       { status: 500 }
     )
   }
