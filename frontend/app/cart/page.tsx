@@ -1,30 +1,54 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useCartStore } from '@/lib/cart-store';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
-import { useState } from 'react';
+import Link from 'next/link'
+import Image from 'next/image'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useCartStore } from '@/lib/cart-store'
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  Tag,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
+  const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore()
+  const [promoCode, setPromoCode] = useState('')
+  const [promoApplied, setPromoApplied] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  const subtotal = getTotalPrice();
-  const shipping = subtotal > 99 ? 0 : 9.99;
-  const discount = promoApplied ? subtotal * 0.1 : 0;
-  const total = subtotal + shipping - discount;
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Loading cart...</p>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  const subtotal = getTotalPrice()
+  const shipping = subtotal > 99 ? 0 : 9.99
+  const discount = promoApplied ? subtotal * 0.1 : 0
+  const total = subtotal + shipping - discount
 
   const handleApplyPromo = () => {
     if (promoCode.toLowerCase() === 'agri10') {
-      setPromoApplied(true);
+      setPromoApplied(true)
     }
-  };
+  }
 
   if (items.length === 0) {
     return (
@@ -32,7 +56,7 @@ export default function CartPage() {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center px-4">
-            <div className="mx-auto w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-6">
+            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
               <ShoppingBag className="h-12 w-12 text-muted-foreground" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">
@@ -51,7 +75,7 @@ export default function CartPage() {
         </main>
         <Footer />
       </div>
-    );
+    )
   }
 
   return (
@@ -67,14 +91,12 @@ export default function CartPage() {
           </p>
 
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4 lg:col-span-2">
               {items.map((item) => (
                 <div
-                  key={item.id}
-                  className="flex gap-4 p-4 bg-card border border-border rounded-lg"
+                  key={String(item.id)}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-4"
                 >
-                  {/* Image */}
                   <Link
                     href={`/products/${item.id}`}
                     className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted"
@@ -87,17 +109,16 @@ export default function CartPage() {
                     />
                   </Link>
 
-                  {/* Details */}
                   <div className="flex flex-1 flex-col">
                     <div className="flex justify-between">
                       <div>
                         <Link
                           href={`/products/${item.id}`}
-                          className="font-medium text-foreground hover:text-primary transition-colors"
+                          className="font-medium text-foreground transition-colors hover:text-primary"
                         >
                           {item.name}
                         </Link>
-                        <p className="mt-1 text-sm text-primary capitalize">
+                        <p className="mt-1 text-sm capitalize text-primary">
                           {item.category}
                         </p>
                       </div>
@@ -107,10 +128,9 @@ export default function CartPage() {
                     </div>
 
                     <div className="mt-auto flex items-center justify-between">
-                      {/* Quantity */}
-                      <div className="flex items-center border border-border rounded-md">
+                      <div className="flex items-center rounded-md border border-border">
                         <button
-                          className="p-2 hover:bg-muted transition-colors"
+                          className="p-2 transition-colors hover:bg-muted"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           aria-label="Decrease quantity"
                         >
@@ -120,7 +140,7 @@ export default function CartPage() {
                           {item.quantity}
                         </span>
                         <button
-                          className="p-2 hover:bg-muted transition-colors"
+                          className="p-2 transition-colors hover:bg-muted"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           aria-label="Increase quantity"
                         >
@@ -128,10 +148,9 @@ export default function CartPage() {
                         </button>
                       </div>
 
-                      {/* Remove */}
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        className="text-muted-foreground transition-colors hover:text-destructive"
                         aria-label="Remove item"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -142,21 +161,19 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 bg-card border border-border rounded-lg p-6">
-                <h2 className="font-medium text-lg text-foreground">
+              <div className="sticky top-24 rounded-lg border border-border bg-card p-6">
+                <h2 className="text-lg font-medium text-foreground">
                   Order Summary
                 </h2>
 
-                {/* Promo Code */}
                 <div className="mt-4">
                   <label className="text-sm text-muted-foreground">
                     Promo Code
                   </label>
                   <div className="mt-1 flex gap-2">
                     <div className="relative flex-1">
-                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         type="text"
                         placeholder="Enter code"
@@ -184,7 +201,6 @@ export default function CartPage() {
                   </p>
                 </div>
 
-                {/* Totals */}
                 <div className="mt-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -210,23 +226,21 @@ export default function CartPage() {
                   <div className="border-t border-border pt-3">
                     <div className="flex justify-between">
                       <span className="font-medium text-foreground">Total</span>
-                      <span className="font-bold text-lg text-foreground">
+                      <span className="text-lg font-bold text-foreground">
                         ${total.toFixed(2)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Checkout Button */}
-                <Button asChild className="w-full mt-6" size="lg">
+                <Button asChild className="mt-6 w-full" size="lg">
                   <Link href="/checkout">
                     Proceed to Checkout
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
 
-                {/* Continue Shopping */}
-                <Button asChild variant="ghost" className="w-full mt-2">
+                <Button asChild variant="ghost" className="mt-2 w-full">
                   <Link href="/products">Continue Shopping</Link>
                 </Button>
               </div>
@@ -236,5 +250,5 @@ export default function CartPage() {
       </main>
       <Footer />
     </div>
-  );
+  )
 }
