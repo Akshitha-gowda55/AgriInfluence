@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
       typeof total === 'number'
         ? total
         : items.reduce(
-            (sum: number, item: any) => sum + Number(item.price) * Number(item.quantity),
+            (sum: number, item: any) =>
+              sum + Number(item.price) * Number(item.quantity),
             0
           )
 
@@ -78,6 +79,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ orderID: data.id })
   } catch (error) {
     console.error('PayPal checkout failed:', error)
-    return NextResponse.json({ error: 'PayPal checkout failed' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'PayPal checkout failed' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { orderID } = await req.json()
+
+    if (!orderID) {
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
+    }
+
+    const accessToken = await getPayPalAccessToken()
+
+    const response = await fetch(
+      `${PAYPAL_BASE}/v2/checkout/orders/${orderID}/capture`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error('PayPal capture error:', data)
+      return NextResponse.json(
+        { error: 'Failed to capture PayPal order', details: data },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('PayPal capture failed:', error)
+    return NextResponse.json(
+      { error: 'PayPal capture failed' },
+      { status: 500 }
+    )
   }
 }

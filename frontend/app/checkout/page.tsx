@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useCartStore } from '@/lib/cart-store'
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -32,14 +32,14 @@ export default function CheckoutPage() {
 
       <main className="flex-1 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 py-10">
-          <Link href="/cart" className="flex items-center text-sm mb-6">
-            <ChevronLeft className="h-4 w-4 mr-1" />
+          <Link href="/cart" className="mb-6 flex items-center text-sm">
+            <ChevronLeft className="mr-1 h-4 w-4" />
             Back to Cart
           </Link>
 
-          <div className="grid lg:grid-cols-2 gap-10">
+          <div className="grid gap-10 lg:grid-cols-2">
             <div>
-              <h2 className="text-2xl font-semibold mb-6">Payment</h2>
+              <h2 className="mb-6 text-2xl font-semibold">Payment</h2>
 
               {clientId ? (
                 <PayPalScriptProvider
@@ -47,10 +47,16 @@ export default function CheckoutPage() {
                     clientId,
                     currency: 'USD',
                     intent: 'capture',
+                    disableFunding: 'card',
                   }}
                 >
                   <PayPalButtons
-                    style={{ layout: 'vertical' }}
+                    style={{
+                      layout: 'vertical',
+                      color: 'gold',
+                      shape: 'rect',
+                      label: 'paypal',
+                    }}
                     createOrder={async () => {
                       const res = await fetch('/api/checkout', {
                         method: 'POST',
@@ -58,27 +64,35 @@ export default function CheckoutPage() {
                         body: JSON.stringify({ items, total }),
                       })
 
-                      if (!res.ok) {
-                        throw new Error('Failed to create PayPal order')
-                      }
-
                       const data = await res.json()
 
-                      if (!data.orderID) {
-                        throw new Error('No PayPal order ID returned')
+                      if (!res.ok || !data.orderID) {
+                        console.error('Create order failed:', data)
+                        throw new Error('Failed to create PayPal order')
                       }
 
                       return data.orderID
                     }}
-                    onApprove={async (_data, actions) => {
-                      const details = await actions?.order?.capture()
+                    onApprove={async (data) => {
+                      const res = await fetch('/api/checkout', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderID: data.orderID }),
+                      })
 
-                      console.log(details)
+                      const details = await res.json()
+
+                      if (!res.ok) {
+                        console.error('Capture failed:', details)
+                        throw new Error('Failed to capture PayPal payment')
+                      }
+
                       clearCart()
 
                       const orderId =
                         details?.id ||
-                        details?.purchase_units?.[0]?.payments?.captures?.[0]?.id
+                        details?.purchase_units?.[0]?.payments?.captures?.[0]?.id ||
+                        data.orderID
 
                       router.push(orderId ? `/success?orderId=${orderId}` : '/success')
                     }}
@@ -87,20 +101,20 @@ export default function CheckoutPage() {
                       alert('Payment failed')
                     }}
                     onCancel={() => {
-                      alert('Payment cancelled')
+                      console.log('PayPal payment cancelled')
                     }}
                   />
                 </PayPalScriptProvider>
               ) : (
                 <p className="text-sm text-red-500">
                   PayPal Client ID is missing. Add{' '}
-                  <code>NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> in Vercel and local env.
+                  <code>NEXT_PUBLIC_PAYPAL_CLIENT_ID</code>.
                 </p>
               )}
             </div>
 
-            <div className="bg-white border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+            <div className="rounded-lg border bg-white p-6">
+              <h2 className="mb-4 text-xl font-semibold">Order Summary</h2>
 
               <div className="space-y-3">
                 {items.map((item) => (
@@ -113,7 +127,7 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <div className="border-t mt-6 pt-6 space-y-2">
+              <div className="mt-6 space-y-2 border-t pt-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
@@ -129,7 +143,7 @@ export default function CheckoutPage() {
                   <span>${tax.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between font-bold text-lg pt-3">
+                <div className="flex justify-between pt-3 text-lg font-bold">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
