@@ -1,45 +1,36 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { Star, ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Product } from '@/lib/types';
-import { useCartStore } from '@/lib/cart-store';
+import Link from 'next/link'
+import Image from 'next/image'
+import { Star, ShoppingCart } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Product } from '@/lib/types'
+import { useCartStore } from '@/lib/cart-store'
 
 interface ProductCardProps {
-  product: Product;
+  product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const addItem = useCartStore((state) => state.addItem);
+  const addItem = useCartStore((state) => state.addItem)
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem(product);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    addItem(product)
+  }
 
-<<<<<<< HEAD
-  // Safe price values
-  const price = product.price ?? 0;
-  const originalPrice = product.originalPrice ?? 0;
-
+  const price = product.price ?? 0
+  const originalPrice = product.originalPrice ?? 0
   const discount =
-    originalPrice > 0 ? Math.round((1 - price / originalPrice) * 100) : 0;
-=======
-  const discount = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : 0;
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
+    originalPrice > 0 ? Math.round((1 - price / originalPrice) * 100) : 0
 
   return (
     <Link href={`/products/${product.id}`} className="group">
-      <div className="relative overflow-hidden rounded-lg bg-card border border-border transition-all duration-300 hover:shadow-lg hover:border-primary/30">
+      <div className="relative overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-muted">
-<<<<<<< HEAD
           {product.image ? (
             <Image
               src={product.image}
@@ -49,41 +40,30 @@ export function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
-            <div className="flex items-center justify-center h-full w-full text-muted-foreground">
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
               No Image
             </div>
           )}
-=======
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
+
           {product.badge && (
             <Badge
-              className={`absolute top-3 left-3 ${
+              className={`absolute left-3 top-3 ${
                 product.badge === 'Sale'
                   ? 'bg-destructive text-destructive-foreground'
                   : product.badge === 'Organic'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-accent text-accent-foreground'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-accent text-accent-foreground'
               }`}
             >
               {product.badge}
             </Badge>
           )}
+
           {!product.inStock && (
-            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-<<<<<<< HEAD
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
               <span className="text-sm font-medium text-muted-foreground">
                 Out of Stock
               </span>
-=======
-              <span className="text-sm font-medium text-muted-foreground">Out of Stock</span>
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
             </div>
           )}
         </div>
@@ -92,18 +72,11 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs font-medium text-primary uppercase tracking-wide">
-<<<<<<< HEAD
+              <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {product.category ?? 'Category'}
               </p>
-              <h3 className="mt-1 font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+              <h3 className="mt-1 line-clamp-2 font-medium text-foreground transition-colors group-hover:text-primary">
                 {product.name ?? 'Unnamed Product'}
-=======
-                {product.category}
-              </p>
-              <h3 className="mt-1 font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                {product.name}
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
               </h3>
             </div>
           </div>
@@ -115,11 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Star
                   key={i}
                   className={`h-3.5 w-3.5 ${
-<<<<<<< HEAD
                     i < Math.floor(product.rating ?? 0)
-=======
-                    i < Math.floor(product.rating)
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
                       ? 'fill-accent text-accent'
                       : 'fill-muted text-muted'
                   }`}
@@ -127,11 +96,7 @@ export function ProductCard({ product }: ProductCardProps) {
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
-<<<<<<< HEAD
               ({product.reviews ?? 0})
-=======
-              ({product.reviews})
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
             </span>
           </div>
 
@@ -139,19 +104,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-semibold text-foreground">
-<<<<<<< HEAD
                 ${price.toFixed(2)}
               </span>
               {originalPrice > 0 && (
                 <span className="text-sm text-muted-foreground line-through">
                   ${originalPrice.toFixed(2)}
-=======
-                ${product.price.toFixed(2)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                  ${product.originalPrice.toFixed(2)}
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
                 </span>
               )}
               {discount > 0 && (
@@ -160,17 +117,14 @@ export function ProductCard({ product }: ProductCardProps) {
                 </span>
               )}
             </div>
+
             <Button
               size="icon"
               variant="outline"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
               onClick={handleAddToCart}
               disabled={!product.inStock}
-<<<<<<< HEAD
               aria-label={`Add ${product.name ?? 'Product'} to cart`}
-=======
-              aria-label={`Add ${product.name} to cart`}
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
             >
               <ShoppingCart className="h-4 w-4" />
             </Button>
@@ -178,9 +132,5 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
     </Link>
-  );
-<<<<<<< HEAD
+  )
 }
-=======
-}
->>>>>>> 87c8fd1ed26d8dcc83b75fccf942731460390ca8
