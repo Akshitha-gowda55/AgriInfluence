@@ -15,13 +15,17 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
+  const [mounted, setMounted] = useState(false)
 
-  const getTotalItems = useCartStore((state) => state.getTotalItems)
+  const items = useCartStore((state) => state.items)
 
   useEffect(() => {
-    setCartCount(getTotalItems())
-  }, [getTotalItems])
+    setMounted(true)
+  }, [])
+
+  const cartCount = mounted
+    ? items.reduce((total, item) => total + item.quantity, 0)
+    : 0
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
