@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useCartStore } from '@/lib/cart-store'
+import { formatPrice } from '@/lib/currency'
 import {
   Minus,
   Plus,
@@ -123,7 +124,7 @@ export default function CartPage() {
                         </p>
                       </div>
                       <p className="font-medium text-foreground">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
 
@@ -204,30 +205,32 @@ export default function CartPage() {
                 <div className="mt-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">${subtotal.toFixed(2)}</span>
+                    <span className="text-foreground">{formatPrice(subtotal)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-primary">Discount (10%)</span>
-                      <span className="text-primary">-${discount.toFixed(2)}</span>
+                      <span className="text-primary">
+                        -{formatPrice(discount)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
                     <span className="text-foreground">
-                      {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? 'Free' : formatPrice(shipping)}
                     </span>
                   </div>
                   {shipping > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      Free shipping on orders over $99
+                      Free shipping on orders over ₹99
                     </p>
                   )}
                   <div className="border-t border-border pt-3">
                     <div className="flex justify-between">
                       <span className="font-medium text-foreground">Total</span>
                       <span className="text-lg font-bold text-foreground">
-                        ${total.toFixed(2)}
+                        {formatPrice(total)}
                       </span>
                     </div>
                   </div>
