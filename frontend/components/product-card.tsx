@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Product } from '@/lib/types'
 import { useCartStore } from '@/lib/cart-store'
+import { formatPrice } from '@/lib/currency'
 
 interface ProductCardProps {
   product: Product
@@ -29,7 +30,6 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`} className="group">
       <div className="relative overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
-        {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-muted">
           {product.image ? (
             <Image
@@ -68,7 +68,6 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* Content */}
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -81,7 +80,6 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
 
-          {/* Rating */}
           <div className="mt-2 flex items-center gap-1">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -100,15 +98,14 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
 
-          {/* Price */}
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-semibold text-foreground">
-                ${price.toFixed(2)}
+                {formatPrice(price)}
               </span>
               {originalPrice > 0 && (
                 <span className="text-sm text-muted-foreground line-through">
-                  ${originalPrice.toFixed(2)}
+                  {formatPrice(originalPrice)}
                 </span>
               )}
               {discount > 0 && (
