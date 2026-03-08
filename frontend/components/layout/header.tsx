@@ -15,14 +15,13 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
 
   const getTotalItems = useCartStore((state) => state.getTotalItems)
-  const totalItems = getTotalItems()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setCartCount(getTotalItems())
+  }, [getTotalItems])
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -53,9 +52,9 @@ export function Header() {
             <Button variant="ghost" size="icon" asChild className="relative">
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
-                {mounted && totalItems > 0 && (
+                {cartCount > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                    {totalItems}
+                    {cartCount}
                   </span>
                 )}
               </Link>
