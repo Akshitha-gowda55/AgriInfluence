@@ -1,30 +1,33 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { ShoppingCart, Menu, X, Leaf, Search, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useCartStore } from '@/lib/cart-store';
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { ShoppingCart, Menu, X, Leaf } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useCartStore } from '@/lib/cart-store'
 
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Products', href: '/products' },
   { name: 'Influencers', href: '/influencers' },
   { name: 'About', href: '/about' },
-];
+]
 
 export function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const getTotalItems = useCartStore((state) => state.getTotalItems);
-  const totalItems = getTotalItems();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  const getTotalItems = useCartStore((state) => state.getTotalItems)
+  const totalItems = getTotalItems()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b border-border">
+    <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="flex h-16 items-center justify-between">
-
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
               <Leaf className="h-6 w-6 text-primary-foreground" />
@@ -47,11 +50,10 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
-
             <Button variant="ghost" size="icon" asChild className="relative">
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                     {totalItems}
                   </span>
@@ -67,10 +69,9 @@ export function Header() {
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
-
           </div>
         </div>
       </nav>
     </header>
-  );
+  )
 }
