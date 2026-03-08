@@ -47,10 +47,12 @@ export default function CheckoutPage() {
                     clientId,
                     currency: 'USD',
                     intent: 'capture',
-                    disableFunding: 'card',
+                    disableFunding: 'card,credit,paylater',
+                    locale: 'en_US',
                   }}
                 >
                   <PayPalButtons
+                    fundingSource="paypal"
                     style={{
                       layout: 'vertical',
                       color: 'gold',
@@ -98,7 +100,7 @@ export default function CheckoutPage() {
                     }}
                     onError={(err) => {
                       console.error('PayPal payment error:', err)
-                      alert('Payment failed')
+                      alert(`Payment failed: ${String(err)}`)
                     }}
                     onCancel={() => {
                       console.log('PayPal payment cancelled')
