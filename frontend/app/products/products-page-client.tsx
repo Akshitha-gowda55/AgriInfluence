@@ -49,7 +49,7 @@ export default function ProductsPageClient() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   )
-  const [priceRange, setPriceRange] = useState([0, 100])
+  const [priceRange, setPriceRange] = useState<number[]>([0, 100])
   const [inStockOnly, setInStockOnly] = useState(false)
   const [sortBy, setSortBy] = useState('featured')
 
@@ -80,18 +80,21 @@ export default function ProductsPageClient() {
     }
 
     switch (sortBy) {
-      case 'price-asc':
-        filtered.sort((a, b) => a.price - b.price)
-        break
-      case 'price-desc':
-        filtered.sort((a, b) => b.price - a.price)
-        break
-      case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating)
-        break
-      default:
-        break
-    }
+  case 'price-asc':
+    filtered = [...filtered].sort((a, b) => a.price - b.price)
+    break
+
+  case 'price-desc':
+    filtered = [...filtered].sort((a, b) => b.price - a.price)
+    break
+
+  case 'rating':
+    filtered = [...filtered].sort((a, b) => b.rating - a.rating)
+    break
+
+  default:
+    break
+}
 
     return filtered
   }, [searchQuery, selectedCategories, priceRange, inStockOnly, sortBy])
@@ -151,8 +154,8 @@ export default function ProductsPageClient() {
           className="mb-2"
         />
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>₹{priceRange[0]}</span>
-          <span>₹{priceRange[1]}</span>
+          <span>${priceRange[0]}</span>
+          <span>${priceRange[1]}</span>
         </div>
       </div>
 
@@ -160,7 +163,7 @@ export default function ProductsPageClient() {
         <label className="flex cursor-pointer items-center gap-2">
           <Checkbox
             checked={inStockOnly}
-            onCheckedChange={(checked) => setInStockOnly(checked as boolean)}
+            onCheckedChange={(checked) => setInStockOnly(Boolean(checked))}
           />
           <span className="text-sm text-muted-foreground">In Stock Only</span>
         </label>

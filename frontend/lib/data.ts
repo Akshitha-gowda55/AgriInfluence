@@ -3,6 +3,7 @@ import { Product, Testimonial, Influencer, Review } from './types';
 export const products: Product[] = [
   {
     id: '1',
+    
     name: 'OrganicGrow Pro NPK',
     category: 'fertilizer',
     price: 45.99,

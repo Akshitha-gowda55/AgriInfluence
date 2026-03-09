@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import CartFetcher from './cart-fetcher'
+import { ThemeProvider } from '@/components/theme-provider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -15,9 +16,9 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'AgriInfluence - Premium Agriculture Products & Influencer Collaborations',
+  title: 'AgriInfluence - Premium Agriculture Products',
   description:
-    'Shop premium fertilizers, pesticides, and seeds. Partner with agriculture brands as an influencer. Trusted by thousands of farmers.',
+    'Shop premium fertilizers, pesticides, and seeds. Trusted by farmers worldwide.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -40,13 +41,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        <CartFetcher>{children}</CartFetcher>
+      <body
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased`}
+      >
+        <ThemeProvider>
+          <CartFetcher>{children}</CartFetcher>
+        </ThemeProvider>
+
         <Analytics />
       </body>
     </html>
