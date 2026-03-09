@@ -1,11 +1,10 @@
-export function formatCurrency(value: number) {
-  return `₹${value.toFixed(2)}`
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString()
-}
-
-export function generateId() {
-  return Math.random().toString(36).substring(2, 10)
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`
 }
