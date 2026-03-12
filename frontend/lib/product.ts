@@ -1,6 +1,6 @@
 // lib/products.ts
 
-import { Product } from '@/types'
+import type { Product } from '@/types'
 
 export const products: Product[] = [
   {
@@ -20,7 +20,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Balanced NPK fertilizer for stronger roots and higher yield.',
+    shortDescription:
+      'Balanced NPK fertilizer for stronger roots and higher yield.',
     description:
       'Premium NPK Fertilizer is designed to support balanced plant growth by improving root development, leaf health, and fruit formation. Suitable for a wide range of crops.',
     benefits: [
@@ -102,7 +103,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Protect crops from insects using a safer bio-based formula.',
+    shortDescription:
+      'Protect crops from insects using a safer bio-based formula.',
     description:
       'Bio Pesticide Spray helps control common crop pests while being less harmful to beneficial soil systems when used properly.',
     benefits: [
@@ -142,7 +144,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'High germination tomato seeds for uniform crop growth.',
+    shortDescription:
+      'High germination tomato seeds for uniform crop growth.',
     description:
       'Hybrid Tomato Seeds offer strong germination, consistent fruit quality, and improved resistance in suitable growing conditions.',
     benefits: [
@@ -182,7 +185,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Essential micronutrients for greener leaves and healthier growth.',
+    shortDescription:
+      'Essential micronutrients for greener leaves and healthier growth.',
     description:
       'Micronutrient Plant Booster supplies zinc, boron, and other trace elements required for healthy plant metabolism and improved productivity.',
     benefits: [
@@ -222,7 +226,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1625246333842-f8b2490ff4d4?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Effective herbicide for targeted weed control in field crops.',
+    shortDescription:
+      'Effective herbicide for targeted weed control in field crops.',
     description:
       'Selective Weed Killer is formulated to control unwanted weeds while supporting healthier crop establishment when applied correctly.',
     benefits: [
@@ -261,7 +266,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'High nitrogen fertilizer for vigorous vegetative growth.',
+    shortDescription:
+      'High nitrogen fertilizer for vigorous vegetative growth.',
     description:
       'Urea Granules provide an efficient nitrogen source to improve leafy growth and support crop development in nitrogen-deficient soils.',
     benefits: [
@@ -300,7 +306,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1461354464878-ad92f492a5a0?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Organic soil amendment that supports root health.',
+    shortDescription:
+      'Organic soil amendment that supports root health.',
     description:
       'Neem Cake Powder improves soil quality and supports plant health while fitting well into organic farming practices.',
     benefits: [
@@ -377,7 +384,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1471193945509-9ad0617afabf?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'High-quality paddy seeds for strong germination and yield.',
+    shortDescription:
+      'High-quality paddy seeds for strong germination and yield.',
     description:
       'Premium Paddy Seeds are selected for good germination and crop stand establishment, making them suitable for productive cultivation.',
     benefits: [
@@ -417,7 +425,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Potassium-rich supplement for better fruit quality and strength.',
+    shortDescription:
+      'Potassium-rich supplement for better fruit quality and strength.',
     description:
       'Potash Boost supports stronger stems, improved fruit quality, and better crop resilience under demanding growth stages.',
     benefits: [
@@ -455,7 +464,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=1200&q=80',
     ],
-    shortDescription: 'Broad-spectrum insecticide for common sucking and chewing pests.',
+    shortDescription:
+      'Broad-spectrum insecticide for common sucking and chewing pests.',
     description:
       'Insect Control Plus is suitable for managing common insect pressure across selected crops when used according to label instructions.',
     benefits: [
@@ -479,21 +489,30 @@ export const products: Product[] = [
   },
 ]
 
-export const featuredProducts = products.filter((product) => product.featured)
+export const featuredProducts: Product[] = products.filter(
+  (product) => product.featured === true
+)
 
-export const bestSellerProducts = products.filter((product) => product.bestSeller)
+export const bestSellerProducts: Product[] = products.filter(
+  (product) => product.bestSeller === true
+)
 
-export const trendingProducts = products.filter((product) => product.trending)
+export const trendingProducts: Product[] = products.filter(
+  (product) => product.trending === true
+)
 
-export function getProductById(id: string) {
+export function getProductById(id: string): Product | undefined {
   return products.find((product) => product.id === id)
 }
 
-export function getProductBySlug(slug: string) {
+export function getProductBySlug(slug: string): Product | undefined {
   return products.find((product) => product.slug === slug)
 }
 
-export function getRelatedProducts(category: string, currentProductId: string) {
+export function getRelatedProducts(
+  category: string,
+  currentProductId: string
+): Product[] {
   return products
     .filter(
       (product) =>

@@ -1,16 +1,152 @@
+// types/index.ts
+
+export type ProductCategory =
+  | 'Fertilizers'
+  | 'Pesticides'
+  | 'Seeds'
+  | 'Organic Products'
+  | 'Crop Nutrients'
+  | 'Herbicides'
+  | 'fertilizer'
+  | 'pesticide'
+  | 'seeds'
+
+export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock'
+
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'failed'
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
+
+export type PaymentMethod = 'razorpay' | 'cod' | 'upi'
+
+export interface Review {
+  id: string
+  author?: string
+  userId?: string
+  userName?: string
+  rating: number
+  comment: string
+  date?: string
+  createdAt?: string
+  verified?: boolean
+}
+
 export interface Product {
   id: string
   name: string
-  category: string
+
+  slug?: string
+  brand?: string
+  category: ProductCategory
+  subcategory?: string
+
   price: number
   originalPrice?: number
-  description: string
-  usage: string
-  image: string
+  discountPercent?: number
+
   rating: number
-  reviews: number
-  inStock: boolean
-  badge?: string
+
+  reviewCount?: number
+  reviews?: number
+
+  stock?: number
+  stockStatus?: StockStatus
+  inStock?: boolean
+
+  image?: string
+  images?: string[]
+
+  shortDescription?: string
+  description: string
+  usage?: string
+  usageInstructions?: string[]
+
+  safetyInfo?: string[]
+  benefits?: string[]
+  crops?: string[]
+  sizeOptions?: string[]
+  tags?: string[]
+
+  featured?: boolean
+  bestSeller?: boolean
+  trending?: boolean
+  badge?: 'Best Seller' | 'Top Rated' | 'Sale' | 'Organic'
+
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CartItem extends Product {
+  quantity: number
+  selectedSize?: string
+}
+
+export interface Address {
+  fullName: string
+  phone: string
+  addressLine1: string
+  addressLine2?: string
+  city: string
+  state: string
+  pincode: string
+  country?: string
+}
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  avatar?: string
+  role: 'user' | 'admin'
+  addresses?: Address[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface OrderItem {
+  productId: string
+  name: string
+  image: string
+  price: number
+  quantity: number
+  selectedSize?: string
+}
+
+export interface OrderPricing {
+  subtotal: number
+  shipping: number
+  tax: number
+  discount: number
+  total: number
+}
+
+export interface Order {
+  id: string
+  userId: string
+  items: OrderItem[]
+  shippingAddress: Address
+  pricing: OrderPricing
+  orderStatus: OrderStatus
+  paymentStatus: PaymentStatus
+  paymentMethod: PaymentMethod
+  razorpayOrderId?: string
+  razorpayPaymentId?: string
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data?: T
 }
 
 export interface Testimonial {
@@ -22,46 +158,11 @@ export interface Testimonial {
   crop: string
 }
 
-export interface Review {
-  id: string
-  author: string
-  rating: number
-  comment: string
-  date: string
-  verified: boolean
-}
-
-export interface OrderItem {
+export interface Influencer {
   id: string
   name: string
-  price: number
-  quantity: number
-}
-
-export interface Order {
-  id: string
-  items: OrderItem[]
-  total: number
-  date: string
-  status: string
-}
-export interface CartItem {
-  id: string
-  name: string
-  price: number
+  handle: string
+  followers: string
   image: string
-  quantity: number
-}
-
-
-export interface User {
-  name: string
-  email: string
-}
-
-export interface WishlistItem {
-  id: string
-  name: string
-  price: number
-  image: string
+  category: string
 }

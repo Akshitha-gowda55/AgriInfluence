@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { use, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { ProductCard } from '@/components/product-card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { products, productReviews } from '@/lib/data';
-import { useCartStore } from '@/lib/cart-store';
+import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import ProductCard from '@/components/products/product-card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { products, productReviews } from '@/lib/data'
+import { useCartStore } from '@/lib/cart-store'
 import {
   Star,
   ShoppingCart,
@@ -22,44 +22,46 @@ import {
   Minus,
   Plus,
   Check,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface ProductPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string }
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-  const { id } = use(params);
-  const product = products.find((p) => p.id === id);
-  const [quantity, setQuantity] = useState(1);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const addItem = useCartStore((state) => state.addItem);
+  const { id } = params
+  const product = products.find((p) => p.id === id)
+
+  const [quantity, setQuantity] = useState(1)
+  const [addedToCart, setAddedToCart] = useState(false)
+
+  const addToCart = useCartStore((state) => state.addToCart)
 
   if (!product) {
-    notFound();
+    notFound()
   }
 
   const relatedProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+    .slice(0, 4)
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addItem(product);
+      addToCart(product)
     }
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 2000)
+  }
 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : 0;
+    : 0
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+
       <main className="flex-1">
-        {/* Breadcrumb */}
         <div className="bg-muted/50 border-b border-border">
           <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
             <nav className="flex items-center gap-2 text-sm">
@@ -84,20 +86,19 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
 
-        {/* Product Details */}
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-            {/* Image */}
             <div className="relative">
-              <div className="aspect-square overflow-hidden rounded-xl bg-muted">
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
                 <Image
-                  src={product.image}
+                  src={product.image ?? '/placeholder.jpg'}
                   alt={product.name}
                   fill
                   className="object-cover"
                   priority
                 />
               </div>
+
               {product.badge && (
                 <Badge
                   className={`absolute top-4 left-4 ${
@@ -113,16 +114,15 @@ export default function ProductPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            {/* Details */}
             <div>
               <p className="text-sm font-medium text-primary uppercase tracking-wide">
                 {product.category}
               </p>
+
               <h1 className="mt-2 font-serif text-3xl font-bold text-foreground sm:text-4xl">
                 {product.name}
               </h1>
 
-              {/* Rating */}
               <div className="mt-4 flex items-center gap-2">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
@@ -136,35 +136,35 @@ export default function ProductPage({ params }: ProductPageProps) {
                     />
                   ))}
                 </div>
+
                 <span className="text-sm font-medium text-foreground">
                   {product.rating}
                 </span>
+
                 <span className="text-sm text-muted-foreground">
-                  ({product.reviews} reviews)
+                  ({product.reviews ?? 0} reviews)
                 </span>
               </div>
 
-              {/* Price */}
               <div className="mt-6 flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-foreground">
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </span>
+
                 {product.originalPrice && (
                   <>
                     <span className="text-xl text-muted-foreground line-through">
-                      ${product.originalPrice.toFixed(2)}
+                      ₹{product.originalPrice.toFixed(2)}
                     </span>
                     <Badge variant="destructive">-{discount}%</Badge>
                   </>
                 )}
               </div>
 
-              {/* Description */}
               <p className="mt-6 text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
 
-              {/* Stock Status */}
               <div className="mt-6">
                 {product.inStock ? (
                   <div className="flex items-center gap-2 text-primary">
@@ -178,18 +178,23 @@ export default function ProductPage({ params }: ProductPageProps) {
                 )}
               </div>
 
-              {/* Quantity & Add to Cart */}
-              <div className="mt-6 flex flex-col sm:flex-row gap-4">
+              <div className="mt-6 flex flex-col gap-4 sm:flex-row">
                 <div className="flex items-center border border-border rounded-lg">
                   <button
+                    type="button"
                     className="p-3 hover:bg-muted transition-colors"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     aria-label="Decrease quantity"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="w-12 text-center font-medium">{quantity}</span>
+
+                  <span className="w-12 text-center font-medium">
+                    {quantity}
+                  </span>
+
                   <button
+                    type="button"
                     className="p-3 hover:bg-muted transition-colors"
                     onClick={() => setQuantity(quantity + 1)}
                     aria-label="Increase quantity"
@@ -197,6 +202,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
+
                 <Button
                   size="lg"
                   className="flex-1"
@@ -217,8 +223,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 </Button>
               </div>
 
-              {/* Features */}
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {[
                   { icon: Truck, text: 'Free shipping over $99' },
                   { icon: Shield, text: '30-day returns' },
@@ -236,7 +241,6 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="mt-16">
             <Tabs defaultValue="usage" className="w-full">
               <TabsList className="w-full justify-start border-b bg-transparent p-0">
@@ -246,24 +250,29 @@ export default function ProductPage({ params }: ProductPageProps) {
                 >
                   Usage Instructions
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="reviews"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
                 >
-                  Reviews ({product.reviews})
+                  Reviews ({product.reviews ?? 0})
                 </TabsTrigger>
               </TabsList>
+
               <TabsContent value="usage" className="mt-6">
                 <div className="prose prose-neutral max-w-none">
                   <h3 className="text-lg font-medium text-foreground">
                     How to Use
                   </h3>
+
                   <p className="mt-4 text-muted-foreground leading-relaxed">
-                    {product.usage}
+                    {product.usage ?? 'Use as directed.'}
                   </p>
+
                   <h4 className="mt-6 font-medium text-foreground">
                     Important Notes:
                   </h4>
+
                   <ul className="mt-2 space-y-2 text-muted-foreground">
                     <li>Store in a cool, dry place away from direct sunlight</li>
                     <li>Keep out of reach of children and pets</li>
@@ -272,6 +281,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                   </ul>
                 </div>
               </TabsContent>
+
               <TabsContent value="reviews" className="mt-6">
                 <div className="space-y-6">
                   {productReviews.map((review) => (
@@ -283,14 +293,16 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-foreground">
-                              {review.author}
+                              {review.author ?? 'Anonymous'}
                             </span>
+
                             {review.verified && (
                               <Badge variant="secondary" className="text-xs">
                                 Verified Purchase
                               </Badge>
                             )}
                           </div>
+
                           <div className="mt-1 flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
                               <Star
@@ -304,10 +316,12 @@ export default function ProductPage({ params }: ProductPageProps) {
                             ))}
                           </div>
                         </div>
+
                         <span className="text-sm text-muted-foreground">
-                          {new Date(review.date).toLocaleDateString()}
+                          {new Date(review.date ?? '').toLocaleDateString()}
                         </span>
                       </div>
+
                       <p className="mt-3 text-muted-foreground">
                         {review.comment}
                       </p>
@@ -318,22 +332,26 @@ export default function ProductPage({ params }: ProductPageProps) {
             </Tabs>
           </div>
 
-          {/* Related Products */}
           {relatedProducts.length > 0 && (
             <div className="mt-16">
               <h2 className="font-serif text-2xl font-bold text-foreground">
                 Related Products
               </h2>
+
               <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {relatedProducts.map((relatedProduct) => (
-                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                  <ProductCard
+                    key={relatedProduct.id}
+                    product={relatedProduct}
+                  />
                 ))}
               </div>
             </div>
           )}
         </div>
       </main>
+
       <Footer />
     </div>
-  );
+  )
 }
