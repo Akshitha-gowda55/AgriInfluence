@@ -106,21 +106,22 @@ export const products: Product[] = [
     reviews: 267,
     inStock: true,
   },
-  {
-    id: '7',
-    name: 'PhosphoRoot Enhancer',
-    category: 'fertilizer',
-    price: 42.0,
-    description:
-      'Phosphorus-rich fertilizer that promotes strong root development and flowering in all plant types.',
-    usage:
-      'Apply 2 kg per 100 sq meters at planting time. Mix into root zone. Ideal for transplants and new plantings.',
-    image:
-      'https://images.unsplash.com/photo-1592722212832-ecd6f1b0f08b?w=400&h=400&fit=crop',
-    rating: 4.4,
-    reviews: 87,
-    inStock: false,
-  },
+  
+    {
+  id: '7',
+  name: 'PhosphoRoot Enhancer',
+  category: 'fertilizer',
+  price: 42.0,
+  description:
+    'Phosphorus-rich fertilizer that promotes strong root development and flowering in all plant types.',
+  usage:
+    'Apply 2 kg per 100 sq meters at planting time. Mix into root zone. Ideal for transplants and new plantings.',
+  image:
+    'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&h=400&fit=crop',
+  rating: 4.4,
+  reviews: 87,
+  inStock: false,
+},
   {
     id: '8',
     name: 'InsectGuard Organic',

@@ -6,15 +6,15 @@ import { ProductDetails } from '@/components/products/product-details'
 import { products } from '@/lib/data'
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = products.find(
-    (item) => item.id === params.id
-  )
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = await params
+
+  const product = products.find((item) => item.id === id)
 
   if (!product) {
     notFound()
@@ -22,7 +22,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-
       <Header />
 
       <main className="flex-1 bg-muted/30">
@@ -32,7 +31,6 @@ export default function ProductPage({ params }: ProductPageProps) {
       </main>
 
       <Footer />
-
     </div>
   )
 }
