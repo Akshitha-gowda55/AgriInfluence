@@ -1,4 +1,10 @@
-import type { Product, Testimonial, Influencer, Review } from '@/types'
+import type {
+  Product,
+  Testimonial,
+  Influencer,
+  Review,
+  Order,
+} from '@/types'
 
 export const products: Product[] = [
   {
@@ -9,7 +15,8 @@ export const products: Product[] = [
     originalPrice: 59.99,
     description:
       'Premium organic NPK fertilizer with balanced nutrients for all crops. Slow-release formula ensures steady nutrient supply throughout the growing season.',
-    usage: 'Apply 2-3 kg per 100 sq meters. Mix with topsoil before planting or as side dressing during growth. Water thoroughly after application.',
+    usage:
+      'Apply 2-3 kg per 100 sq meters. Mix with topsoil before planting or as side dressing during growth. Water thoroughly after application.',
     image:
       'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop',
     rating: 4.8,
@@ -241,5 +248,131 @@ export const productReviews: Review[] = [
       'Great quality for the price. Noticed improvement in plant growth within two weeks.',
     date: '2023-12-28',
     verified: false,
+  },
+]
+
+export const orders: Order[] = [
+  {
+    id: 'ORD-1001',
+    userId: 'USR-001',
+    items: [
+      {
+        productId: '1',
+        name: 'OrganicGrow Pro NPK',
+        image:
+          'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop',
+        price: 45.99,
+        quantity: 2,
+      },
+      {
+        productId: '3',
+        name: 'Heritage Wheat Seeds',
+        image:
+          'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop',
+        price: 28.99,
+        quantity: 1,
+      },
+    ],
+    shippingAddress: {
+      fullName: 'Ravi Kumar',
+      phone: '9876543210',
+      addressLine1: '12 Green Farm Road',
+      city: 'Mysore',
+      state: 'Karnataka',
+      pincode: '570001',
+      country: 'India',
+    },
+    pricing: {
+      subtotal: 120.97,
+      shipping: 10,
+      tax: 5,
+      discount: 0,
+      total: 135.97,
+    },
+    orderStatus: 'delivered',
+    paymentStatus: 'paid',
+    paymentMethod: 'razorpay',
+    razorpayOrderId: 'order_001',
+    razorpayPaymentId: 'pay_001',
+    createdAt: '2024-01-20',
+    updatedAt: '2024-01-22',
+  },
+  {
+    id: 'ORD-1002',
+    userId: 'USR-002',
+    items: [
+      {
+        productId: '2',
+        name: 'BioShield Pesticide',
+        image:
+          'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=400&fit=crop',
+        price: 32.5,
+        quantity: 3,
+      },
+    ],
+    shippingAddress: {
+      fullName: 'Anita Sharma',
+      phone: '9988776655',
+      addressLine1: '45 Lake View',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      pincode: '560001',
+      country: 'India',
+    },
+    pricing: {
+      subtotal: 97.5,
+      shipping: 8,
+      tax: 4.5,
+      discount: 5,
+      total: 105,
+    },
+    orderStatus: 'pending',
+    paymentStatus: 'pending',
+    paymentMethod: 'cod',
+    createdAt: '2024-01-25',
+    updatedAt: '2024-01-25',
+  },
+  {
+    id: 'ORD-1003',
+    userId: 'USR-003',
+    items: [
+      {
+        productId: '8',
+        name: 'InsectGuard Organic',
+        image:
+          'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=400&h=400&fit=crop',
+        price: 29.99,
+        quantity: 2,
+      },
+      {
+        productId: '4',
+        name: 'NitroBoost Plus',
+        image:
+          'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&h=400&fit=crop',
+        price: 52.0,
+        quantity: 1,
+      },
+    ],
+    shippingAddress: {
+      fullName: 'Kiran Patel',
+      phone: '9123456780',
+      addressLine1: '78 Market Street',
+      city: 'Pune',
+      state: 'Maharashtra',
+      pincode: '411001',
+      country: 'India',
+    },
+    pricing: {
+      subtotal: 111.98,
+      shipping: 10,
+      tax: 5,
+      discount: 0,
+      total: 126.98,
+    },
+    orderStatus: 'cancelled',
+    paymentStatus: 'failed',
+    paymentMethod: 'upi',
+    createdAt: '2024-02-02',
+    updatedAt: '2024-02-03',
   },
 ]

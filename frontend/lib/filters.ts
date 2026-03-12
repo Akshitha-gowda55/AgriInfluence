@@ -1,6 +1,6 @@
 // lib/filters.ts
 
-import { Product, ProductCategory } from '@/types'
+import type { Product, ProductCategory } from '@/types'
 
 export type SortOption =
   | 'featured'
@@ -28,29 +28,42 @@ export function filterProducts(
   let filtered = [...products]
 
   if (options.category && options.category !== 'All') {
-    filtered = filtered.filter((product) => product.category === options.category)
+    filtered = filtered.filter(
+      (product) => product.category === options.category
+    )
   }
 
   if (typeof options.minPrice === 'number') {
-    filtered = filtered.filter((product) => product.price >= options.minPrice!)
+    filtered = filtered.filter(
+      (product) => product.price >= options.minPrice!
+    )
   }
 
   if (typeof options.maxPrice === 'number') {
-    filtered = filtered.filter((product) => product.price <= options.maxPrice!)
+    filtered = filtered.filter(
+      (product) => product.price <= options.maxPrice!
+    )
   }
 
   if (typeof options.minRating === 'number') {
-    filtered = filtered.filter((product) => product.rating >= options.minRating!)
+    filtered = filtered.filter(
+      (product) => product.rating >= options.minRating!
+    )
   }
 
   if (options.inStockOnly) {
-    filtered = filtered.filter((product) => product.stockStatus !== 'out_of_stock')
+    filtered = filtered.filter(
+      (product) => product.stockStatus !== 'out_of_stock'
+    )
   }
 
   if (options.crop) {
     const crop = options.crop.toLowerCase()
+
     filtered = filtered.filter((product) =>
-      product.crops.some((item) => item.toLowerCase().includes(crop))
+      (product.crops ?? []).some((item) =>
+        item.toLowerCase().includes(crop)
+      )
     )
   }
 
@@ -60,10 +73,12 @@ export function filterProducts(
     filtered = filtered.filter((product) => {
       return (
         product.name.toLowerCase().includes(query) ||
-        product.brand.toLowerCase().includes(query) ||
+        (product.brand ?? '').toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
-        product.shortDescription.toLowerCase().includes(query) ||
-        product.crops.some((crop) => crop.toLowerCase().includes(query))
+        (product.shortDescription ?? '').toLowerCase().includes(query) ||
+        (product.crops ?? []).some((crop) =>
+          crop.toLowerCase().includes(query)
+        )
       )
     })
   }
@@ -88,12 +103,20 @@ export function sortProducts(
       return sorted.sort((a, b) => b.rating - a.rating)
 
     case 'name-a-z':
-      return sorted.sort((a, b) => a.name.localeCompare(b.name))
+      return sorted.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
 
     case 'newest':
       return sorted.sort((a, b) => {
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        const aDate = a.createdAt
+          ? new Date(a.createdAt).getTime()
+          : 0
+
+        const bDate = b.createdAt
+          ? new Date(b.createdAt).getTime()
+          : 0
+
         return bDate - aDate
       })
 
@@ -101,9 +124,14 @@ export function sortProducts(
     default:
       return sorted.sort((a, b) => {
         const scoreA =
-          (a.featured ? 3 : 0) + (a.bestSeller ? 2 : 0) + (a.trending ? 1 : 0)
+          (a.featured ? 3 : 0) +
+          (a.bestSeller ? 2 : 0) +
+          (a.trending ? 1 : 0)
+
         const scoreB =
-          (b.featured ? 3 : 0) + (b.bestSeller ? 2 : 0) + (b.trending ? 1 : 0)
+          (b.featured ? 3 : 0) +
+          (b.bestSeller ? 2 : 0) +
+          (b.trending ? 1 : 0)
 
         return scoreB - scoreA
       })
@@ -114,10 +142,14 @@ export function getUniqueCrops(products: Product[]): string[] {
   const crops = new Set<string>()
 
   products.forEach((product) => {
-    product.crops.forEach((crop) => crops.add(crop))
+    ;(product.crops ?? []).forEach((crop) =>
+      crops.add(crop)
+    )
   })
 
-  return Array.from(crops).sort((a, b) => a.localeCompare(b))
+  return Array.from(crops).sort((a, b) =>
+    a.localeCompare(b)
+  )
 }
 
 export function getPriceRange(products: Product[]) {

@@ -2,14 +2,21 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react'
+
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { useCartStore } from '@/lib/cart-store'
-import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore()
+  const {
+    items,
+    removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
+    getTotalPrice,
+  } = useCartStore()
 
   const subtotal = getTotalPrice()
   const shipping = subtotal > 99 ? 0 : 9.99
@@ -29,13 +36,18 @@ export default function CartPage() {
 
           {items.length === 0 ? (
             <div className="rounded-lg border bg-white p-10 text-center shadow-sm">
-              <p className="mb-4 text-muted-foreground">Your cart is empty.</p>
+              <p className="mb-4 text-muted-foreground">
+                Your cart is empty.
+              </p>
+
               <Button asChild>
                 <Link href="/products">Browse Products</Link>
               </Button>
             </div>
           ) : (
             <div className="grid gap-8 lg:grid-cols-3">
+
+              {/* Cart Items */}
               <div className="space-y-4 lg:col-span-2">
                 {items.map((item) => (
                   <div
@@ -45,7 +57,7 @@ export default function CartPage() {
                     <div className="flex items-center gap-4">
                       <div className="relative h-20 w-20 overflow-hidden rounded-md border">
                         <Image
-                          src={item.image}
+                          src={item.image || '/placeholder.png'}
                           alt={item.name}
                           fill
                           className="object-cover"
@@ -53,20 +65,24 @@ export default function CartPage() {
                       </div>
 
                       <div>
-                        <h2 className="font-semibold">{item.name}</h2>
+                        <h2 className="font-semibold">
+                          {item.name}
+                        </h2>
+
                         <p className="text-sm text-muted-foreground">
                           ₹{item.price.toFixed(2)}
                         </p>
                       </div>
                     </div>
 
+                    {/* Quantity Controls */}
                     <div className="flex items-center gap-3">
                       <div className="flex items-center rounded-md border">
+
                         <button
+                          type="button"
                           className="p-2"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
+                          onClick={() => decreaseQuantity(item.id)}
                         >
                           <Minus className="h-4 w-4" />
                         </button>
@@ -76,18 +92,19 @@ export default function CartPage() {
                         </span>
 
                         <button
+                          type="button"
                           className="p-2"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
+                          onClick={() => increaseQuantity(item.id)}
                         >
                           <Plus className="h-4 w-4" />
                         </button>
+
                       </div>
 
                       <button
+                        type="button"
                         className="rounded-md p-2 text-red-600 hover:bg-red-50"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -96,10 +113,14 @@ export default function CartPage() {
                 ))}
               </div>
 
+              {/* Order Summary */}
               <div className="rounded-lg border bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold">Order Summary</h2>
+                <h2 className="mb-4 text-xl font-semibold">
+                  Order Summary
+                </h2>
 
                 <div className="space-y-2">
+
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>₹{subtotal.toFixed(2)}</span>
@@ -107,7 +128,11 @@ export default function CartPage() {
 
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
+                    <span>
+                      {shipping === 0
+                        ? 'Free'
+                        : `₹${shipping.toFixed(2)}`}
+                    </span>
                   </div>
 
                   <div className="flex justify-between">
@@ -119,12 +144,16 @@ export default function CartPage() {
                     <span>Total</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
+
                 </div>
 
                 <Button asChild className="mt-6 w-full">
-                  <Link href="/checkout">Proceed to Checkout</Link>
+                  <Link href="/checkout">
+                    Proceed to Checkout
+                  </Link>
                 </Button>
               </div>
+
             </div>
           )}
         </div>

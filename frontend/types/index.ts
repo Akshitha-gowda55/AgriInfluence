@@ -166,3 +166,12 @@ export interface Influencer {
   image: string
   category: string
 }
+export interface WishlistItem {
+  id: string
+  productId: string
+  name: string
+  price: number
+  image?: string
+  category?: ProductCategory
+  addedAt?: string
+}

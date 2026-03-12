@@ -1,4 +1,4 @@
-import ProductCard from '@/components/products/product-card'
+import {ProductCard} from '@/components/product-card'
 import { products } from '../../lib/data'
 
 export default function FeaturedProducts() {

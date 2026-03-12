@@ -3,6 +3,10 @@ import type { WishlistItem } from '@/types'
 
 const wishlistItems: WishlistItem[] = []
 
+/* -------------------------------------------------------------------------- */
+/*                                    GET                                     */
+/* -------------------------------------------------------------------------- */
+
 export async function GET() {
   try {
     return NextResponse.json({
@@ -20,22 +24,42 @@ export async function GET() {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                    POST                                    */
+/* -------------------------------------------------------------------------- */
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { id, name, price, image } = body
 
-    if (!id || !name || typeof price !== 'number' || !image) {
+    const {
+      id,
+      productId,
+      name,
+      price,
+      image,
+      category,
+    } = body
+
+    if (
+      !id ||
+      !productId ||
+      !name ||
+      typeof price !== 'number' ||
+      !image
+    ) {
       return NextResponse.json(
         {
           success: false,
-          message: 'id, name, price, and image are required',
+          message: 'id, productId, name, price, and image are required',
         },
         { status: 400 }
       )
     }
 
-    const existingItem = wishlistItems.find((item) => item.id === id)
+    const existingItem = wishlistItems.find(
+      (item) => item.id === id
+    )
 
     if (existingItem) {
       return NextResponse.json(
@@ -49,9 +73,12 @@ export async function POST(request: Request) {
 
     const newItem: WishlistItem = {
       id,
+      productId,
       name,
       price,
       image,
+      category,
+      addedAt: new Date().toISOString(),
     }
 
     wishlistItems.push(newItem)
@@ -75,6 +102,10 @@ export async function POST(request: Request) {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                   DELETE                                   */
+/* -------------------------------------------------------------------------- */
+
 export async function DELETE(request: Request) {
   try {
     const body = await request.json()
@@ -90,7 +121,9 @@ export async function DELETE(request: Request) {
       )
     }
 
-    const index = wishlistItems.findIndex((item) => item.id === id)
+    const index = wishlistItems.findIndex(
+      (item) => item.id === id
+    )
 
     if (index === -1) {
       return NextResponse.json(

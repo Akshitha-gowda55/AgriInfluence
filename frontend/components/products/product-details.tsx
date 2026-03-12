@@ -2,40 +2,40 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { Minus, Plus, ShoppingCart, Star } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/cart-store'
 import type { Product } from '@/types'
-import { Minus, Plus, ShoppingCart, Star } from 'lucide-react'
 
 interface ProductDetailsProps {
   product: Product
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
-  const addItem = useCartStore((state) => state.addItem)
+  const addToCart = useCartStore((state) => state.addToCart)
+
   const [quantity, setQuantity] = useState(1)
 
   const handleAddToCart = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity,
-    })
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product)
+    }
   }
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
+      {/* Product Image */}
       <div className="relative aspect-square overflow-hidden rounded-xl border bg-white">
         <Image
-          src={product.image}
+          src={product.image || '/placeholder.png'}
           alt={product.name}
           fill
           className="object-cover"
           priority
         />
+
         {product.badge && (
           <Badge className="absolute left-4 top-4">
             {product.badge}
@@ -43,6 +43,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         )}
       </div>
 
+      {/* Product Info */}
       <div>
         <p className="text-sm font-medium uppercase tracking-wide text-green-700">
           {product.category}
@@ -52,16 +53,21 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           {product.name}
         </h1>
 
+        {/* Rating */}
         <div className="mt-4 flex items-center gap-2">
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-medium">{product.rating}</span>
+            <span className="font-medium">
+              {product.rating}
+            </span>
           </div>
+
           <span className="text-sm text-gray-500">
             ({product.reviews} reviews)
           </span>
         </div>
 
+        {/* Price */}
         <div className="mt-5 flex items-center gap-3">
           <span className="text-3xl font-bold text-gray-900">
             ₹{product.price.toFixed(2)}
@@ -74,24 +80,31 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           )}
         </div>
 
+        {/* Description */}
         <p className="mt-6 leading-7 text-gray-600">
           {product.description}
         </p>
 
+        {/* Usage */}
         <div className="mt-6">
           <h2 className="mb-2 text-lg font-semibold text-gray-900">
             Usage Instructions
           </h2>
-          <p className="leading-7 text-gray-600">{product.usage}</p>
+
+          <p className="leading-7 text-gray-600">
+            {product.usage}
+          </p>
         </div>
 
+        {/* Quantity + Cart */}
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex w-fit items-center rounded-lg border">
             <button
               type="button"
-              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              onClick={() =>
+                setQuantity((prev) => Math.max(1, prev - 1))
+              }
               className="p-3"
-              aria-label="Decrease quantity"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -104,7 +117,6 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               type="button"
               onClick={() => setQuantity((prev) => prev + 1)}
               className="p-3"
-              aria-label="Increase quantity"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -120,6 +132,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </Button>
         </div>
 
+        {/* Stock Status */}
         <div className="mt-6">
           <span
             className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${

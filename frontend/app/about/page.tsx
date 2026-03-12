@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { TestimonialsSection } from '@/components/home/testimonials-section';
+import  TestimonialsSection  from '@/components/home/testimonials-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

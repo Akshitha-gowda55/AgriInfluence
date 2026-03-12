@@ -1,126 +1,129 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useMemo } from 'react'
+
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { Button } from '@/components/ui/button'
+
+import { orders } from '@/lib/data'
 import type { Order } from '@/types'
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+
+import { Badge } from '@/components/ui/badge'
+
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([])
 
-  useEffect(() => {
-    const storedOrders = localStorage.getItem('orders')
-    if (storedOrders) {
-      setOrders(JSON.parse(storedOrders))
-    }
-  }, [])
+  const typedOrders = orders as Order[]
 
-  const updateStatus = (id: string, status: string) => {
-    const updatedOrders = orders.map((order) =>
-      order.id === id ? { ...order, status } : order
+  const sortedOrders = useMemo(() => {
+    return [...typedOrders].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
     )
+  }, [typedOrders])
 
-    setOrders(updatedOrders)
-    localStorage.setItem('orders', JSON.stringify(updatedOrders))
-  }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen flex flex-col">
+
       <Header />
 
       <main className="flex-1 bg-muted/30">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <h1 className="mb-8 text-3xl font-bold">Manage Orders</h1>
 
-          <div className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-xl font-semibold">All Customer Orders</h2>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
-            {orders.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No orders available.
-              </p>
-            ) : (
-              <div className="space-y-6">
-                {orders.map((order) => (
+          {/* Page Title */}
+          <div className="mb-8">
+
+            <h1 className="text-3xl font-bold text-foreground">
+              Admin Orders
+            </h1>
+
+            <p className="mt-2 text-muted-foreground">
+              View and manage all customer orders.
+            </p>
+
+          </div>
+
+
+          {/* Orders Card */}
+          <Card>
+
+            <CardHeader>
+              <CardTitle>
+                All Orders
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+
+              <div className="space-y-4">
+
+                {sortedOrders.map((order) => (
+
                   <div
                     key={order.id}
-                    className="rounded-lg border p-4"
+                    className="flex flex-col gap-4 rounded-lg border p-4 md:flex-row md:items-center md:justify-between"
                   >
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="font-semibold">Order ID: {order.id}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(order.date).toLocaleDateString()}
-                        </p>
-                      </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-muted px-3 py-1 text-sm">
-                          {order.status}
-                        </span>
+                    {/* Order Info */}
+                    <div>
 
-                        <Link href={`/orders/${order.id}`}>
-                          <Button variant="outline" size="sm">
-                            View
-                          </Button>
-                        </Link>
-                      </div>
+                      <p className="font-semibold">
+                        Order ID: {order.id}
+                      </p>
+
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+
                     </div>
 
-                    <div className="mb-4 space-y-2">
-                      {order.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex justify-between text-sm"
-                        >
-                          <span>
-                            {item.name} × {item.quantity}
-                          </span>
-                          <span>₹{(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                      ))}
+
+                    {/* Order Details */}
+                    <div className="flex flex-wrap items-center gap-3">
+
+                      <Badge variant="outline">
+                        {order.orderStatus}
+                      </Badge>
+
+                      <Badge variant="secondary">
+                        {order.paymentStatus}
+                      </Badge>
+
+                      <p className="font-medium">
+                        {order.items.length} item(s)
+                      </p>
+
+                      <p className="font-semibold">
+                        ₹{order.pricing.total.toFixed(2)}
+                      </p>
+
                     </div>
 
-                    <div className="mb-4 flex justify-between border-t pt-3 font-medium">
-                      <span>Total</span>
-                      <span>₹{order.total.toFixed(2)}</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateStatus(order.id, 'Processing')}
-                      >
-                        Mark Processing
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateStatus(order.id, 'Shipped')}
-                      >
-                        Mark Shipped
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        onClick={() => updateStatus(order.id, 'Delivered')}
-                      >
-                        Mark Delivered
-                      </Button>
-                    </div>
                   </div>
+
                 ))}
+
               </div>
-            )}
-          </div>
+
+            </CardContent>
+
+          </Card>
+
         </div>
+
       </main>
 
       <Footer />
+
     </div>
   )
 }

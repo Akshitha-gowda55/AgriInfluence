@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import type { Order } from '@/types'
+import type { Order, OrderStatus } from '@/types'
+
 import { Button } from '@/components/ui/button'
 
 interface AdminOrdersTableProps {
@@ -11,10 +12,12 @@ interface AdminOrdersTableProps {
 export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
   const [orderList, setOrderList] = useState<Order[]>(orders)
 
-  const updateStatus = (id: string, status: string) => {
+  const updateStatus = (id: string, status: OrderStatus) => {
     setOrderList((prev) =>
       prev.map((order) =>
-        order.id === id ? { ...order, status } : order
+        order.id === id
+          ? { ...order, orderStatus: status }
+          : order
       )
     )
   }
@@ -25,33 +28,60 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/50">
             <tr>
-              <th className="px-4 py-3 text-left font-medium">Order ID</th>
-              <th className="px-4 py-3 text-left font-medium">Date</th>
-              <th className="px-4 py-3 text-left font-medium">Items</th>
-              <th className="px-4 py-3 text-left font-medium">Total</th>
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-right font-medium">Actions</th>
+              <th className="px-4 py-3 text-left font-medium">
+                Order ID
+              </th>
+
+              <th className="px-4 py-3 text-left font-medium">
+                Date
+              </th>
+
+              <th className="px-4 py-3 text-left font-medium">
+                Items
+              </th>
+
+              <th className="px-4 py-3 text-left font-medium">
+                Total
+              </th>
+
+              <th className="px-4 py-3 text-left font-medium">
+                Status
+              </th>
+
+              <th className="px-4 py-3 text-right font-medium">
+                Actions
+              </th>
             </tr>
           </thead>
 
           <tbody>
             {orderList.map((order) => (
-              <tr key={order.id} className="border-b">
-                <td className="px-4 py-3 font-medium">{order.id}</td>
-
-                <td className="px-4 py-3">
-                  {new Date(order.date).toLocaleDateString()}
+              <tr
+                key={order.id}
+                className="border-b"
+              >
+                <td className="px-4 py-3 font-medium">
+                  {order.id}
                 </td>
 
                 <td className="px-4 py-3">
-                  {order.items.reduce((sum, item) => sum + item.quantity, 0)}
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </td>
 
-                <td className="px-4 py-3">₹{order.total.toFixed(2)}</td>
+                <td className="px-4 py-3">
+                  {order.items.reduce(
+                    (sum, item) => sum + item.quantity,
+                    0
+                  )}
+                </td>
+
+                <td className="px-4 py-3">
+                  ₹{order.pricing.total.toFixed(2)}
+                </td>
 
                 <td className="px-4 py-3">
                   <span className="rounded-full bg-muted px-3 py-1 text-xs">
-                    {order.status}
+                    {order.orderStatus}
                   </span>
                 </td>
 
@@ -60,7 +90,9 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateStatus(order.id, 'Processing')}
+                      onClick={() =>
+                        updateStatus(order.id, 'processing')
+                      }
                     >
                       Processing
                     </Button>
@@ -68,14 +100,18 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateStatus(order.id, 'Shipped')}
+                      onClick={() =>
+                        updateStatus(order.id, 'shipped')
+                      }
                     >
                       Shipped
                     </Button>
 
                     <Button
                       size="sm"
-                      onClick={() => updateStatus(order.id, 'Delivered')}
+                      onClick={() =>
+                        updateStatus(order.id, 'delivered')
+                      }
                     >
                       Delivered
                     </Button>

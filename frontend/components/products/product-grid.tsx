@@ -1,5 +1,5 @@
 import { Product } from '@/types'
-import ProductCard from '@/components/products/product-card'
+import {ProductCard} from '@/components/product-card'
 
 type ProductGridProps = {
   products: Product[]
